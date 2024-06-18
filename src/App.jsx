@@ -730,17 +730,17 @@ function App() {
         <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
           <button style={{width: 100, height: 60}} disabled={loading}>
             <IconBxRefresh fill="green" height="2em" width="2em"/>
-            <p style={{fontSize: 16}}>Refrescar</p>
+            <p style={{fontSize: 16}}>Refresh</p>
           </button>
         </div>
         <div style={{display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(235px, 1fr))', flex: 1}}>
           <div style={{display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'space-around'}}>
             <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-              <p>Remitente:</p>
+              <p>Sender:</p>
               <input name='as2From' style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}/>
             </label>
             <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-              <p>Tipo de Evento:</p>
+              <p>Event Type:</p>
               <select name='eventType' style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading} defaultValue='Todos'>
                 <option value='Send'>Envío</option>
                 <option value='Receive'>Recepción</option>
@@ -750,23 +750,23 @@ function App() {
           </div>
           <div style={{display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'space-around'}}>
             <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-              <p>Fecha Hasta:</p>
-              <input type='date' name='toDate' onClick={(e) => {e.target.showPicker()}} style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}></input>
+              <p style={{width: 80}}>Date From:</p>
+              <input type='date' name='fromDate' onClick={(e) => {e.target.showPicker()}} style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}></input>
             </label>
             <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-              <p>Fecha Desde:</p>
-              <input type='date' name='fromDate' onClick={(e) => {e.target.showPicker()}} style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}></input>
+              <p style={{width: 80}}>Date To:</p>
+              <input type='date' name='toDate' onClick={(e) => {e.target.showPicker()}} style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}></input>
             </label>
           </div>
           <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
             <label style={{display: 'flex', gap: 5, alignItems: 'center'}}>
               <input type='checkbox' name='displayOk' style={{height: 20, width: 20}} disabled={loading} defaultChecked></input>
-              <div style={{width: 15, height: 15, display: 'inline-block', backgroundColor: 'green'}}></div><p>Mostrar Ok</p>
+              <div style={{width: 15, height: 15, display: 'inline-block', backgroundColor: 'green'}}></div><p>Display Ok</p>
             </label>
             <label style={{display: 'flex', gap: 5, alignItems: 'center'}}>
               <input type='checkbox' name='displayFailed' style={{height: 20, width: 20}} disabled={loading} defaultChecked></input>
               <div style={{width: 15, height: 15, display: 'inline-block', backgroundColor: 'red'}}></div>
-              <p>Mostrar Fallidos</p>
+              <p>Display Error</p>
             </label>
           </div>
         </div>
@@ -777,11 +777,12 @@ function App() {
             <thead style={{backgroundColor: "#F3F3F3", height: 40}}>
               <tr>
                 <th>Status</th>
-                <th style={{width: 165}}>Timestamp</th>
+                <th style={{width: 170}}>Timestamp</th>
                 <th>Local</th>
-                <th>Remoto</th>
-                <th>ID Mensaje</th>
+                <th>Remote</th>
+                <th>Message ID</th>
                 <th>Payload</th>
+                <th>Result</th>
               </tr>
             </thead>
             <tbody>
@@ -792,11 +793,12 @@ function App() {
                 data.map((row, index) => (
                   <tr key={row.id} style={{backgroundColor: `${index % 2 !== 0 ? "#F3F3F3" : '#FFFFFF'}`, height: 40}}>
                     <td style={{textAlign: 'center'}}><div style={{width: 20, height: 20, display: 'inline-block', borderRadius: 4, backgroundColor: row.status === 'Error' ? 'red' : 'green' }}></div></td>
-                    <td>{formatDate(row.eventDate)}</td>
+                    <td><span style={{width: 150, display: 'inline-block'}}>{formatDate(row.eventDate)}</span></td>
                     <td>{row.senderAs2Id}</td>
                     <td>{row.receiverAs2Id}</td>
                     <td>{row.messageId}</td>
                     <td>{row.payload.slice(0, 10)}</td>
+                    <td><span className={row.eventMessage ? 'event_message' : ''} title={row.eventMessage ?? ''}>{row.eventMessage}</span></td>
                   </tr>
                 ))
               }
