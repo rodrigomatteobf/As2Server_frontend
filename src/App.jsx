@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import { IconBxRefresh } from './components/IconBxRefresh';
+import { Modal } from './components/Modal';
+import { SortAscending } from './components/SortAscending';
+import { SortDescending } from './components/SortDescending';
 
 function App() {
   const [data, setData] = useState([])
+  const [open, setOpen] = useState(false)
+  const [content, setContent] = useState("")
+  const [order, setOrder] = useState("desc")
   const [formValues, setFormValues] = useState(
     {
       as2From: null,
@@ -11,7 +17,8 @@ function App() {
       toDate: null,
       eventType: null,
       displayOk: true,
-      displayFailed: true
+      displayFailed: true,
+      sortMode: order,
     })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -120,113 +127,136 @@ function App() {
   },[])
 
   return (
-    <main>
-      <form
-        onSubmit={onSubmit}
-        onChange={onChange}
-        style={{display: 'flex', gap: 20}}
-      >
-        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-          <button style={{width: 100, height: 60}} disabled={loading}>
-            <IconBxRefresh fill="green" height="2em" width="2em"/>
-            <p style={{fontSize: 16}}>Refresh</p>
-          </button>
-        </div>
-        <div style={{display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(235px, 1fr))', flex: 1}}>
-          <div style={{display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'space-around'}}>
-            <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-              <p>Sender:</p>
-              <input name='as2From' style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}/>
-            </label>
-            <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-              <p>Event Type:</p>
-              <select name='eventType' style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading} defaultValue='Todos'>
-                <option value='Send'>Envío</option>
-                <option value='Receive'>Recepción</option>
-                <option value='Todos'>Todos</option>
-              </select>
-            </label>
+    <>
+      {
+        open &&  
+        <Modal content={content} onClose={() => setOpen(false)}/>
+      }
+      <main>
+        <form
+          onSubmit={onSubmit}
+          onChange={onChange}
+          style={{display: 'flex', gap: 20}}
+        >
+          <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <button style={{width: 100, height: 60}} disabled={loading}>
+              <IconBxRefresh fill="green" height="2em" width="2em"/>
+              <p style={{fontSize: 16}}>Refresh</p>
+            </button>
           </div>
-          <div style={{display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'space-around'}}>
-            <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-              <p style={{width: 80}}>Date From:</p>
-              <input type='date' name='fromDate' onClick={(e) => {e.target.showPicker()}} style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}></input>
-            </label>
-            <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-              <p style={{width: 80}}>Date To:</p>
-              <input type='date' name='toDate' onClick={(e) => {e.target.showPicker()}} style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}></input>
-            </label>
+          <div style={{display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(235px, 1fr))', flex: 1}}>
+            <div style={{display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'space-around'}}>
+              <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+                <p>Sender:</p>
+                <input name='as2From' style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}/>
+              </label>
+              <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+                <p>Event Type:</p>
+                <select name='eventType' style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading} defaultValue='Todos'>
+                  <option value='Send'>Envío</option>
+                  <option value='Receive'>Recepción</option>
+                  <option value='Todos'>Todos</option>
+                </select>
+              </label>
+            </div>
+            <div style={{display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'space-around'}}>
+              <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+                <p style={{width: 80}}>Date From:</p>
+                <input type='date' name='fromDate' onClick={(e) => {e.target.showPicker()}} style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}></input>
+              </label>
+              <label style={{display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+                <p style={{width: 80}}>Date To:</p>
+                <input type='date' name='toDate' onClick={(e) => {e.target.showPicker()}} style={{height: 30, paddingLeft: 5, flex: 1}} disabled={loading}></input>
+              </label>
+            </div>
+            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
+              <label style={{display: 'flex', gap: 5, alignItems: 'center'}}>
+                <input type='checkbox' name='displayOk' style={{height: 20, width: 20}} disabled={loading} defaultChecked></input>
+                <div style={{width: 15, height: 15, display: 'inline-block', backgroundColor: 'green'}}></div><p>Display Ok</p>
+              </label>
+              <label style={{display: 'flex', gap: 5, alignItems: 'center'}}>
+                <input type='checkbox' name='displayFailed' style={{height: 20, width: 20}} disabled={loading} defaultChecked></input>
+                <div style={{width: 15, height: 15, display: 'inline-block', backgroundColor: 'red'}}></div>
+                <p>Display Error</p>
+              </label>
+            </div>
           </div>
-          <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-around'}}>
-            <label style={{display: 'flex', gap: 5, alignItems: 'center'}}>
-              <input type='checkbox' name='displayOk' style={{height: 20, width: 20}} disabled={loading} defaultChecked></input>
-              <div style={{width: 15, height: 15, display: 'inline-block', backgroundColor: 'green'}}></div><p>Display Ok</p>
-            </label>
-            <label style={{display: 'flex', gap: 5, alignItems: 'center'}}>
-              <input type='checkbox' name='displayFailed' style={{height: 20, width: 20}} disabled={loading} defaultChecked></input>
-              <div style={{width: 15, height: 15, display: 'inline-block', backgroundColor: 'red'}}></div>
-              <p>Display Error</p>
-            </label>
-          </div>
-        </div>
-      </form>
-      <section>
-        <div className='table-wrapper'>
-          <table style={{width: '100%', borderCollapse: "collapse"}}>
-            <thead style={{backgroundColor: "#F3F3F3", height: 40}}>
-              <tr>
-                <th>Status</th>
-                <th style={{width: 170}}>Timestamp</th>
-                <th>Local</th>
-                <th>Remote</th>
-                <th>Message ID</th>
-                <th>Payload</th>
-                <th>Result</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                loading ? <tr><td colSpan="100%" style={{textAlign: 'center', padding: "5px"}}><div className='spinner'></div></td></tr> :
-                error ? <tr><td colSpan="100%" style={{textAlign: 'center', padding: "5px"}}><strong>Ocurrió un error</strong></td></tr> :
-                data.length === 0 ? <tr><td colSpan="100%" style={{textAlign: 'center', padding: "5px"}}><strong>No se encontraron registros</strong></td></tr> :
-                data.map((row, index) => (
-                  <tr key={row.id} style={{backgroundColor: `${index % 2 !== 0 ? "#F3F3F3" : '#FFFFFF'}`, height: 40}}>
-                    <td style={{textAlign: 'center'}}><div style={{width: 20, height: 20, display: 'inline-block', borderRadius: 4, backgroundColor: row.status === 'Error' ? 'red' : 'green' }}></div></td>
-                    <td><span style={{width: 150, display: 'inline-block'}}>{formatDate(row.eventDate)}</span></td>
-                    <td>{row.senderAs2Id}</td>
-                    <td>{row.receiverAs2Id}</td>
-                    <td>{row.messageId}</td>
-                    <td>{row.payload.slice(0, 10)}</td>
-                    <td><span className={row.eventMessage ? 'event_message' : ''} title={row.eventMessage ?? ''}>{row.eventMessage}</span></td>
-                  </tr>
-                ))
-              }
+        </form>
+        <section>
+          <div className='table-wrapper'>
+            <table style={{width: '100%', borderCollapse: "collapse"}}>
+              <thead style={{backgroundColor: "#F3F3F3", height: 40}}>
+                <tr>
+                  <th>Status</th>
+                  <th style={{width: 170}}>Event Type</th>
+                  <th style={{width: 170}} onClick={() => {
+                    const newFormValues = {
+                      ...formValues,
+                      sortMode: formValues.sortMode === "asc" ? "desc" : "asc",
+                    }
+                    setFormValues(newFormValues)
+                    setOrder((prev) => {
+                      if(prev === "asc") return "desc"
+                      return "asc"
+                    })
+                    fetchData(newFormValues)
+                  }}><span>Timestamp</span><span style={{position: "absolute"}}>{order === 'asc' ? <SortAscending width={20} height={20}/> : <SortDescending width={20} height={20}/>}</span></th>
+                  <th>Local</th>
+                  <th>Remote</th>
+                  <th>Message ID</th>
+                  <th>Payload</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  loading ? <tr><td colSpan="100%" style={{textAlign: 'center', padding: "5px"}}><div className='spinner'></div></td></tr> :
+                  error ? <tr><td colSpan="100%" style={{textAlign: 'center', padding: "5px"}}><strong>Ocurrió un error</strong></td></tr> :
+                  data.length === 0 ? <tr><td colSpan="100%" style={{textAlign: 'center', padding: "5px"}}><strong>No se encontraron registros</strong></td></tr> :
+                  data.map((row, index) => (
+                    <tr key={row.id} style={{backgroundColor: `${index % 2 !== 0 ? "#F3F3F3" : '#FFFFFF'}`, height: 40}}>
+                      <td style={{textAlign: 'center'}}><div style={{width: 20, height: 20, display: 'inline-block', borderRadius: 4, backgroundColor: row.status === 'Error' ? 'red' : 'green' }}></div></td>
+                      <td><span style={{width: 90, display: 'inline-block'}}>{row.eventType}</span></td>
+                      <td><span style={{width: 150, display: 'inline-block'}}>{formatDate(row.eventDate)}</span></td>
+                      <td>{row.senderAs2Id}</td>
+                      <td>{row.receiverAs2Id}</td>
+                      <td>{row.messageId}</td>
+                      <td onDoubleClick={() => {
+                        if(row.payload === "" || !row.payload) return;
+                        setOpen(true)
+                        setContent(row.payload)
+                      }}>{row.payload.slice(0, 10)}</td>
+                      <td><span className={row.eventMessage ? 'event_message' : ''} title={row.eventMessage ?? ''}>{row.eventMessage}</span></td>
+                    </tr>
+                  ))
+                }
 
-          </tbody>
-          </table>
-        </div>
-      </section>
-      <footer style={{border: "1px solid #D0D0D0", display: 'flex', gap: 10, padding: 10, borderRadius: 4}}>
-        <div style={{display: 'flex', gap: 5}}>
-          <div style={{width: 20, height: 20, display: 'inline-block', borderRadius: 4, border: '1px solid #D0D0D0'}}></div>
-          <p>
-            {data.length}
-          </p>
-        </div>
-        <div style={{display: 'flex', gap: 5}}>
-          <div style={{width: 20, height: 20, display: 'inline-block', borderRadius: 4, backgroundColor: 'green'}}></div>
-          <p>
-            {data.filter(row => row.status === 'Ok').length}
-          </p>
+            </tbody>
+            </table>
           </div>
-        <div style={{display: 'flex', gap: 5}}>
-          <div style={{width: 20, height: 20, display: 'inline-block', borderRadius: 4, backgroundColor: 'red'}}></div>
-          <p>
-          {data.filter(row => row.status === 'Error').length}
-          </p>
-        </div>
-      </footer>
-    </main>
+        </section>
+        <footer style={{border: "1px solid #D0D0D0", display: 'flex', gap: 10, padding: 10, borderRadius: 4}}>
+          <div style={{display: 'flex', gap: 5}}>
+            <div style={{width: 20, height: 20, display: 'inline-block', borderRadius: 4, border: '1px solid #D0D0D0'}}></div>
+            <p>
+              {data.length}
+            </p>
+          </div>
+          <div style={{display: 'flex', gap: 5}}>
+            <div style={{width: 20, height: 20, display: 'inline-block', borderRadius: 4, backgroundColor: 'green'}}></div>
+            <p>
+              {data.filter(row => row.status === 'Ok').length}
+            </p>
+            </div>
+          <div style={{display: 'flex', gap: 5}}>
+            <div style={{width: 20, height: 20, display: 'inline-block', borderRadius: 4, backgroundColor: 'red'}}></div>
+            <p>
+            {data.filter(row => row.status === 'Error').length}
+            </p>
+          </div>
+        </footer>
+      </main>
+    </>
   )
 }
 
